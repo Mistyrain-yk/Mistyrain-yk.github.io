@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://mistyrain-yk.com/2022/07/15/%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E9%A1%BA%E5%BA%8F%E6%95%B4%E5%BD%A2%E6%95%B0%E7%BB%84/</loc>
+    
+    <lastmod>2022-07-15</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://mistyrain-yk.com/anime/index.html</loc>
     
     <lastmod>2022-07-08</lastmod>
@@ -49,22 +58,29 @@
 
   <url>
     <loc>http://mistyrain-yk.com/</loc>
-    <lastmod>2022-07-11</lastmod>
+    <lastmod>2022-07-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
-    <loc>http://mistyrain-yk.com/tags/tag1/</loc>
-    <lastmod>2022-07-11</lastmod>
+    <loc>http://mistyrain-yk.com/tags/tag2/</loc>
+    <lastmod>2022-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://mistyrain-yk.com/tags/tag2/</loc>
-    <lastmod>2022-07-11</lastmod>
+    <loc>http://mistyrain-yk.com/tags/tag1/</loc>
+    <lastmod>2022-07-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://mistyrain-yk.com/tags/C-%E6%95%B0%E7%BB%84-%E9%9A%8F%E6%9C%BA/</loc>
+    <lastmod>2022-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -73,7 +89,14 @@
   
   <url>
     <loc>http://mistyrain-yk.com/categories/anime/</loc>
-    <lastmod>2022-07-11</lastmod>
+    <lastmod>2022-07-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://mistyrain-yk.com/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
+    <lastmod>2022-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
