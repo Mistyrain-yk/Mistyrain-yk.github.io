@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>顺序表数组整体移动</title>
+      <link href="/2022/07/22/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E6%95%B0%E7%BB%84%E6%95%B4%E4%BD%93%E7%A7%BB%E5%8A%A8/"/>
+      <url>/2022/07/22/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E6%95%B0%E7%BB%84%E6%95%B4%E4%BD%93%E7%A7%BB%E5%8A%A8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="顺表表数组整体移动"><a href="#顺表表数组整体移动" class="headerlink" title="顺表表数组整体移动"></a>顺表表数组整体移动</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>我们经常会遇到需要将数组<strong>N</strong>中的某一个元素移动到数组的某一个位置<strong>K</strong>，通常的情况下，我们是把这个元素用一个新的变量<strong>A</strong>记录下来，然后通过移动数组中的其他元素，来将<strong>K</strong>这个位置腾出来，最后将<strong>A</strong>中的值存进去，这样做的话，该算法的空间复杂度为$o(1)$，时间复杂度为$o(n)$。如果是需要移动一片数组元素呢，是否有更简洁的方法?<br><span id="more"></span></p><h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>设将n(n$&gt;$ 1)个整数存放到一维数组<strong>R</strong>中。设计一个在时间和空间两方面都尽可能高效的算法。将R中保存的序列循环左移$p$($0&lt;p&lt;n$)个位置，即将<strong>R</strong>中的数据由($X_0,X_1,\cdots,X_{n-1}$)变换为($X_p,X_{p+1},\cdots,X_{n-1},X_0,X_1,\cdots,X_{p-1}$)。要求：<br>1) 给出算法的基本设计思想。<br>2) 根据设计思想，给出代码。<br>3) 计算算法的时间复杂度和空间复杂度。</p><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><h3 id="思路一"><a href="#思路一" class="headerlink" title="思路一"></a>思路一</h3><p>创建一个辅助数组<strong>A</strong>其大小为$p$，用这个数组将数组<strong>R</strong>中的前$p$个元素保存，随后将后面的$n-p$个元素向前移动$p$个单位，然后再将数组<strong>A</strong>中的数赋值给数组<strong>R</strong>的后$p$个空间。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">void Move(int R[],int p,int num)//传入数组地址，p的大小以及数组长度</span><br><span class="line">&#123;</span><br><span class="line">if(p&gt;=n||p&lt;=0)</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;&quot;error input&quot;&lt;&lt;endl;</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br><span class="line">int K[p];</span><br><span class="line">for(int i=0;i&lt;p;i++)</span><br><span class="line">K[i] = R[i];</span><br><span class="line">for(int i=0,j=p;j&lt;n;j++,i++)</span><br><span class="line">R[i] = R[j];</span><br><span class="line">for(int i=0,j=n-p;i&lt;p;i++,j++)</span><br><span class="line">R[j] = K[i];</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>\<br>时间复杂度为$o(n)$，空间复杂度为$o(p)$</p><h3 id="思路二"><a href="#思路二" class="headerlink" title="思路二"></a>思路二</h3><p>可将这个问题视为把数组$ab$转换成数组$ba$($a$代表数组的前p个元素$p$，$b$代表数组中余下的$n-p$个元素)，先将$a$逆置得到$a^{-1}b$，再将$b$逆置得到$a^{-1}b^{-1}$，最后将整个$a^{-1}b^{-1}$逆置得到$(a^{-1}b^{-1})^{-1}=ba$。其中C++的逆置函数为<em>Reverse(begin,last)</em>。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void Move(int R[],int p,int num)</span><br><span class="line">&#123;</span><br><span class="line">if(p&gt;=n||p&lt;=0)</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;&quot;error input&quot;&lt;&lt;endl;</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br><span class="line">reverse(R,R+p);</span><br><span class="line">reverse(R+p,R+n);</span><br><span class="line">reverse(R,R+n);</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>\<br>时间复杂度为$o(n)$，空间复杂度为$o(1)$</p><h2 id="总结与推广"><a href="#总结与推广" class="headerlink" title="总结与推广"></a>总结与推广</h2><p>根据思路二我们可以发现逆置的方法可以非常简单的对数组中的任意一个或多个连续元素进行移动，而且对于移动的目的地没有任何的条件限制且不需要任何的辅助空间，但该方法只能针对顺序表。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据结构 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 数组 </tag>
+            
+            <tag> 顺序表 </tag>
+            
+            <tag> 元素移动 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>随机生成顺序整形数组</title>
       <link href="/2022/07/15/%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E9%A1%BA%E5%BA%8F%E6%95%B4%E5%BD%A2%E6%95%B0%E7%BB%84/"/>
       <url>/2022/07/15/%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E9%A1%BA%E5%BA%8F%E6%95%B4%E5%BD%A2%E6%95%B0%E7%BB%84/</url>
