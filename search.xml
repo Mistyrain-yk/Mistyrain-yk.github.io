@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>基类析构函数应为虚函数</title>
+      <link href="/2023/05/22/%E5%9F%BA%E7%B1%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0%E5%BA%94%E4%B8%BA%E8%99%9A%E5%87%BD%E6%95%B0/"/>
+      <url>/2023/05/22/%E5%9F%BA%E7%B1%BB%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0%E5%BA%94%E4%B8%BA%E8%99%9A%E5%87%BD%E6%95%B0/</url>
+      
+        <content type="html"><![CDATA[<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>我们在编写程序时经常使用基类指针指向派生类的实例对象，但是在使用多态的时候我们应该注意基类的析构函数是虚函数，不然析构时会出现内存泄漏。<span id="more"></span>当我们使用基类指针指向派生类实例对象的时候，电脑会在内存开辟两个空间，一个是基类的指针空间（基类的引用对象），另一个是派生类的空间，先执行基类的构造函数，然后执行派生类的构造函数，然后基类的指针指向派生类。此时我们调用基类指针的方法则系统会对应调用其派生类的对应方法（如果有），当我们进行析构的时候，如果基类的析构函数不是虚函数，在对基类的指针析构时则只会释放基类的指针空间（基类的引用对象）而不会去释放派生类的实例对象，从而造成内存泄漏。如果基类的析构函数是虚函数则会先释放派生类的实例对象，之后再释放基类的指针。</p><h2 id="代码及结果"><a href="#代码及结果" class="headerlink" title="代码及结果"></a>代码及结果</h2><h3 id="情况一"><a href="#情况一" class="headerlink" title="情况一"></a>情况一</h3><p>没有多态，创建派生类对象，基类的析构函数不是虚函数<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#include&lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">//基类</span><br><span class="line">class ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxBase() &#123;&#125;;</span><br><span class="line">    //析构函数不是虚函数</span><br><span class="line">    ~ClxBase() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxBase!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    void DoSomething() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxBase!&quot; &lt;&lt; endl; </span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">//派生类</span><br><span class="line">class ClxDerived : public ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxDerived() &#123;&#125;;</span><br><span class="line">    ~ClxDerived() &#123; </span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxDerived!&quot; &lt;&lt; endl; </span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    void DoSomething() &#123; </span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxDerived!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">  int main()&#123;  </span><br><span class="line">      //没有多态，派生类对象</span><br><span class="line">      ClxDerived *p =  new ClxDerived;</span><br><span class="line">      p-&gt;DoSomething();</span><br><span class="line">      delete p;</span><br><span class="line">      return 0;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">//运行结果</span><br><span class="line">Do something in class ClxDerived!            </span><br><span class="line">Output from the destructor of class ClxDerived!</span><br><span class="line">Output from the destructor of class ClxBase!  </span><br></pre></td></tr></table></figure></p><h3 id="情况二"><a href="#情况二" class="headerlink" title="情况二"></a>情况二</h3><p>有多态，创建派生类对象，基类的析构函数不是虚函数<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#include&lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">//基类</span><br><span class="line">class ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxBase() &#123;&#125;;</span><br><span class="line">    //析构函数不是虚函数</span><br><span class="line">    ~ClxBase() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxBase!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    void DoSomething() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxBase!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">//派生类</span><br><span class="line">class ClxDerived : public ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxDerived() &#123;&#125;;</span><br><span class="line">    ~ClxDerived() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxDerived!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    void DoSomething() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxDerived!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">  int main()&#123; </span><br><span class="line">      //有多态</span><br><span class="line">      ClxBase *p =  new ClxDerived;</span><br><span class="line">      p-&gt;DoSomething();</span><br><span class="line">      delete p;</span><br><span class="line">      return 0;</span><br><span class="line">  &#125; </span><br><span class="line"> </span><br><span class="line">//运行结果</span><br><span class="line">Do something in class ClxBase!</span><br><span class="line">Output from the destructor of class ClxBase!</span><br></pre></td></tr></table></figure></p><h3 id="情况三"><a href="#情况三" class="headerlink" title="情况三"></a>情况三</h3><p>有多态，创建派生类对象，基类的析构函数是虚函数<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#include&lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"> </span><br><span class="line">//基类</span><br><span class="line">class ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxBase() &#123;&#125;;</span><br><span class="line">    virtual ~ClxBase() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxBase!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    virtual void DoSomething() &#123; </span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxBase!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">//派生类</span><br><span class="line">class ClxDerived : public ClxBase&#123;</span><br><span class="line">public:</span><br><span class="line">    ClxDerived() &#123;&#125;;</span><br><span class="line">    ~ClxDerived() &#123; </span><br><span class="line">        cout &lt;&lt; &quot;Output from the destructor of class ClxDerived!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    void DoSomething() &#123;</span><br><span class="line">        cout &lt;&lt; &quot;Do something in class ClxDerived!&quot; &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">  int main()&#123; </span><br><span class="line">      //有多态</span><br><span class="line">      ClxBase *p =  new ClxDerived;</span><br><span class="line">      //当基类是虚函数时，基类的指针将表现为派生类的行为（非虚函数将表现为基类行为）</span><br><span class="line">      p-&gt;DoSomething();</span><br><span class="line">      delete p;</span><br><span class="line">      return 0;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">//运行结果</span><br><span class="line">Do something in class ClxDerived!</span><br><span class="line">Output from the destructor of class ClxDerived!</span><br><span class="line">Output from the destructor of class ClxBase!</span><br></pre></td></tr></table></figure></p><h2 id="基类构造函数为什么不是虚函数"><a href="#基类构造函数为什么不是虚函数" class="headerlink" title="基类构造函数为什么不是虚函数"></a>基类构造函数为什么不是虚函数</h2><p>1) 创建一个对象时需要确定对象的类型，而虚函数是再运行时动态的确定其类型的。在构造一个对象时，由于对象还未创建成功，所以编译器无法知道对象的实际类型。<br><br><br>2) 虚函数的调用需要虚函数表指针vptr，而该指针存放于对象的内存空间中，若构造函数声明为虚函数，而由于对象还未创建，还没有内存空间，更没有虚函数表vtable地址来调用虚构造函数。<br><br><br>3) 虚函数的作用是通过基类的指针或引用调用它的时候能够变成调用其派生类的那个成员函数，而构造函数是在创建对象时自动调用的，不可能通过基类或者引用去调用，所以构造函数不可能是虚函数。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面向对象 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> 多态 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>C++中vector的常用函数（一）——erase</title>
+      <link href="/2023/02/21/C++%E4%B8%ADvector%E7%9A%84%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94erase/"/>
+      <url>/2023/02/21/C++%E4%B8%ADvector%E7%9A%84%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94erase/</url>
+      
+        <content type="html"><![CDATA[<h2 id="erase方法简介"><a href="#erase方法简介" class="headerlink" title="erase方法简介"></a>erase方法简介</h2><p>erase主要通过位置（指针）而不是元素值删除vector中的元素，可以删除单个元素，也可以删除连续的多个元素，主要通过迭代器来实现。<br><span id="more"></span></p><h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><p>单个元素：erase(iterator position);</p><p>多个连续元素：erase(iterator first, iterator last);</p><p>这两种方法返回值都是一个迭代器，该迭代器指向被删除元素后面的元素</p><h2 id="erase代码与结果"><a href="#erase代码与结果" class="headerlink" title="erase代码与结果"></a>erase代码与结果</h2><p>已有容器vec={1,2,3,4,5}<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//单个元素</span><br><span class="line">vector&lt;int&gt;::iterator iter= vec.begin();</span><br><span class="line">iter++;</span><br><span class="line">iter = vec.erase(iter);</span><br><span class="line">cout&lt;&lt;*iter&lt;&lt;endl;</span><br><span class="line">iter = vec.begin();</span><br><span class="line">while(iter!=vec.end())</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;*iter&lt;&lt;endl;</span><br><span class="line">iter++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>输出：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">1</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//多个元素</span><br><span class="line">vector&lt;int&gt;::iterator iter= vec.begin();</span><br><span class="line">vector&lt;int&gt;::iterator iter1 = vec.begin();</span><br><span class="line">vector&lt;int&gt;::iterator iter2 = vec.begin();</span><br><span class="line">iter2++;</span><br><span class="line">iter = vec.erase(iter1,iter2);</span><br><span class="line">cout&lt;&lt;*iter&lt;&lt;endl;</span><br><span class="line">iter = vec.begin();</span><br><span class="line">while(iter!=vec.end())</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;*iter&lt;&lt;endl;</span><br><span class="line">iter++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>输出：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td></tr></table></figure></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> C++ </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> vector </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Latex特殊字符</title>
+      <link href="/2022/07/24/Latex%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6/"/>
+      <url>/2022/07/24/Latex%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Latex特殊字符"><a href="#Latex特殊字符" class="headerlink" title="Latex特殊字符"></a>Latex特殊字符</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>本篇为Latex特殊字符汇总，方便查询Latex特殊字符使用<br><span id="more"></span><br><img src="latex1.jpg" alt="latexImage1"><br><img src="latex2.jpg" alt="latexImage2"><br><img src="latex3.jpg" alt="latexImage3"><br><img src="latex4.jpg" alt="latexImage4"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Latex </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Latex </tag>
+            
+            <tag> 特殊字符 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>顺序表数组整体移动</title>
+      <link href="/2022/07/22/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E6%95%B0%E7%BB%84%E6%95%B4%E4%BD%93%E7%A7%BB%E5%8A%A8/"/>
+      <url>/2022/07/22/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E6%95%B0%E7%BB%84%E6%95%B4%E4%BD%93%E7%A7%BB%E5%8A%A8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="顺表表数组整体移动"><a href="#顺表表数组整体移动" class="headerlink" title="顺表表数组整体移动"></a>顺表表数组整体移动</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>我们经常会遇到需要将数组<strong>N</strong>中的某一个元素移动到数组的某一个位置<strong>K</strong>，通常的情况下，我们是把这个元素用一个新的变量<strong>A</strong>记录下来，然后通过移动数组中的其他元素，来将<strong>K</strong>这个位置腾出来，最后将<strong>A</strong>中的值存进去，这样做的话，该算法的空间复杂度为$o(1)$，时间复杂度为$o(n)$。如果是需要移动一片数组元素呢，是否有更简洁的方法?<br><span id="more"></span></p><h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>设将n(n$&gt;$ 1)个整数存放到一维数组<strong>R</strong>中。设计一个在时间和空间两方面都尽可能高效的算法。将R中保存的序列循环左移$p$($0&lt;p&lt;n$)个位置，即将<strong>R</strong>中的数据由($X_0,X_1,\cdots,X_{n-1}$)变换为($X_p,X_{p+1},\cdots,X_{n-1},X_0,X_1,\cdots,X_{p-1}$)。要求：<br>1) 给出算法的基本设计思想。<br>2) 根据设计思想，给出代码。<br>3) 计算算法的时间复杂度和空间复杂度。</p><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><h3 id="思路一"><a href="#思路一" class="headerlink" title="思路一"></a>思路一</h3><p>创建一个辅助数组<strong>A</strong>其大小为$p$，用这个数组将数组<strong>R</strong>中的前$p$个元素保存，随后将后面的$n-p$个元素向前移动$p$个单位，然后再将数组<strong>A</strong>中的数赋值给数组<strong>R</strong>的后$p$个空间。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">void Move(int R[],int p,int num)//传入数组地址，p的大小以及数组长度</span><br><span class="line">&#123;</span><br><span class="line">if(p&gt;=n||p&lt;=0)</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;&quot;error input&quot;&lt;&lt;endl;</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br><span class="line">int K[p];</span><br><span class="line">for(int i=0;i&lt;p;i++)</span><br><span class="line">K[i] = R[i];</span><br><span class="line">for(int i=0,j=p;j&lt;n;j++,i++)</span><br><span class="line">R[i] = R[j];</span><br><span class="line">for(int i=0,j=n-p;i&lt;p;i++,j++)</span><br><span class="line">R[j] = K[i];</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>\<br>时间复杂度为$o(n)$，空间复杂度为$o(p)$</p><h3 id="思路二"><a href="#思路二" class="headerlink" title="思路二"></a>思路二</h3><p>可将这个问题视为把数组$ab$转换成数组$ba$($a$代表数组的前p个元素$p$，$b$代表数组中余下的$n-p$个元素)，先将$a$逆置得到$a^{-1}b$，再将$b$逆置得到$a^{-1}b^{-1}$，最后将整个$a^{-1}b^{-1}$逆置得到$(a^{-1}b^{-1})^{-1}=ba$。其中C++的逆置函数为<em>Reverse(begin,last)</em>。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void Move(int R[],int p,int num)</span><br><span class="line">&#123;</span><br><span class="line">if(p&gt;=n||p&lt;=0)</span><br><span class="line">&#123;</span><br><span class="line">cout&lt;&lt;&quot;error input&quot;&lt;&lt;endl;</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br><span class="line">reverse(R,R+p);</span><br><span class="line">reverse(R+p,R+n);</span><br><span class="line">reverse(R,R+n);</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>\<br>时间复杂度为$o(n)$，空间复杂度为$o(1)$</p><h2 id="总结与推广"><a href="#总结与推广" class="headerlink" title="总结与推广"></a>总结与推广</h2><p>根据思路二我们可以发现逆置的方法可以非常简单的对数组中的任意一个或多个连续元素进行移动，而且对于移动的目的地没有任何的条件限制且不需要任何的辅助空间，但该方法只能针对顺序表。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据结构 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 数组 </tag>
+            
+            <tag> 顺序表 </tag>
+            
+            <tag> 元素移动 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>随机生成顺序整形数组</title>
+      <link href="/2022/07/15/%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E9%A1%BA%E5%BA%8F%E6%95%B4%E5%BD%A2%E6%95%B0%E7%BB%84/"/>
+      <url>/2022/07/15/%E9%9A%8F%E6%9C%BA%E7%94%9F%E6%88%90%E9%A1%BA%E5%BA%8F%E6%95%B4%E5%BD%A2%E6%95%B0%E7%BB%84/</url>
+      
+        <content type="html"><![CDATA[<h1 id="随机生成顺序整形数组"><a href="#随机生成顺序整形数组" class="headerlink" title="随机生成顺序整形数组"></a>随机生成顺序整形数组</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>最近做数据结构的算法题经常会碰见数组类型的，数组的测试数据总是需要自己一个个敲感觉太麻烦了就写了一个能提供随机整型数组的函数。<br><span id="more"></span></p><h2 id="代码以及库函数"><a href="#代码以及库函数" class="headerlink" title="代码以及库函数"></a>代码以及库函数</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;ctime&gt; </span><br><span class="line">#include &lt;cstdlib&gt;</span><br><span class="line">void randomList(int* List,int n) //生成随机顺序整型数组 </span><br><span class="line">&#123;</span><br><span class="line">srand(int(time(0)));</span><br><span class="line">for(int i=0;i&lt;n;i++)</span><br><span class="line">&#123;</span><br><span class="line">int num = rand()%100; //生成100以内的随机数</span><br><span class="line">if(i==0)</span><br><span class="line">List[i] = num;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">int j = i;</span><br><span class="line">while(num&lt;List[j-1])  //插排</span><br><span class="line">&#123;</span><br><span class="line">List[j] = List[j-1];</span><br><span class="line">j--;</span><br><span class="line"></span><br><span class="line">if(j == 0)</span><br><span class="line">break;</span><br><span class="line">&#125;</span><br><span class="line">List[j] = num;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">return ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure><h2 id="测试函数"><a href="#测试函数" class="headerlink" title="测试函数"></a>测试函数</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;cstdlib&gt;</span><br><span class="line">#include &lt;cstring&gt;</span><br><span class="line">#include &lt;ctime&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line">void randomList(int* List,int n);</span><br><span class="line"></span><br><span class="line">int main(int argc,char** argv)</span><br><span class="line">&#123;</span><br><span class="line">int n = 0;</span><br><span class="line">cin&gt;&gt;n;</span><br><span class="line">int* A = new int[n];</span><br><span class="line">memset(A,0,sizeof(int)*n);</span><br><span class="line">randomList(A,n);</span><br><span class="line">for(int i=0;i&lt;n;i++)</span><br><span class="line">cout&lt;&lt;A[i]&lt;&lt;&quot;  &quot;;</span><br><span class="line">delete [] A;</span><br><span class="line">return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据结构 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> C++ </tag>
+            
+            <tag> 数组 </tag>
+            
+            <tag> 随机 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
